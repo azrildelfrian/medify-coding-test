@@ -4,22 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\KategoriItem;
 
-class MasterItem extends Model
+class KategoriItem extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
-    public function kategoriItems(): BelongsToMany
+    protected $table = 'kategori_items';
+
+    protected $fillable = [
+        'kode',
+        'nama',
+    ];
+
+    public function items(): BelongsToMany
     {
         return $this->belongsToMany(
-            KategoriItem::class,
+            MasterItem::class,
             'item_kategori',
-            'master_item_id',
-            'kategori_item_id'
+            'kategori_item_id',
+            'master_item_id'
         )->withTimestamps();
     }
 }

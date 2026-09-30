@@ -1,5 +1,3 @@
-
-
 <table id="table" class="table table-striped" style="width:100%">
     <thead>
         <tr>
@@ -9,6 +7,7 @@
             <th>Harga Beli</th>
             <th>Harga Jual</th>
             <th>Supplier</th>
+            <th>Kategori</th>
             <th>View</th>
         </tr>
     </thead>

@@ -11,7 +11,9 @@
     $(document).ready(function() {
         $('#table').DataTable({
             searching: false,
-            order: [[0, 'desc']],
+            order: [
+                [0, 'desc']
+            ],
         });
         getData()
     });
@@ -20,44 +22,76 @@
         getData()
     })
 
-    function getData(){
-        
+    function getData() {
+
         $('#loading-filter').show();
         var dataTableObj = $('#table').DataTable();
         var filter_kode = $('#filter-kode').val()
         var filter_nama = $('#filter-nama').val()
         var filter_harga_min = $('#filter-harga-min').val()
         var filter_harga_max = $('#filter-harga-max').val()
+        var kategoriId = new URLSearchParams(window.location.search)
+            .get('kategori_id') || '';
         dataTableObj.clear().draw();
 
         $.ajax({
-            url: '{{url("master-items/search")}}',
+            url: '{{ url('master-items/search') }}',
             dataType: 'json',
             tryCount: 0,
             retryLimit: 3,
-            data: 'kode=' + filter_kode + '&nama=' + filter_nama + '&hargamin=' + filter_harga_min + '&hargamax=' + filter_harga_max,
+            data: {
+                kode: filter_kode,
+                nama: filter_nama,
+                hargamin: filter_harga_min,
+                hargamax: filter_harga_max,
+                kategori_id: kategoriId
+            },
             success: function(results) {
                 var data = results.data
 
                 $.each(data, function(index, item) {
-                    array_temp = [];
-                    var harga_jual = item.harga_beli + item.harga_beli * item.laba / 100;
-                    harga_jual = Math.round(harga_jual)
-                    var kode = item.kode;
+                    var hargaJual = Math.round(
+                        Number(item.harga_beli) +
+                        Number(item.harga_beli) * Number(item.laba) / 100
+                    );
 
-                    var html = `<a href="{{url('master-items/view/')}}/` + kode + `" class="btn btn-primary">View</a>`
+                    var tombolView = `
+                        <a href="{{ url('master-items/view') }}/${encodeURIComponent(item.kode)}"
+                        class="btn btn-primary btn-sm">
+                            View
+                        </a>
+                    `;
 
-                    $.each(item, function(obj_name, obj_value) {
-                        if (obj_name == 'laba') return false;
-                        array_temp.push(obj_value)
-                    })
-                    array_temp.push(harga_jual)
-                    array_temp.push(item.supplier)
-                    array_temp.push(html)
+                    var kategoriHtml = '-';
 
+                    if (item.kategori_items && item.kategori_items.length > 0) {
+                        kategoriHtml = item.kategori_items.map(function(kategori) {
+                            var namaKategori = $('<div>')
+                                .text(kategori.nama)
+                                .html();
 
-                    dataTableObj.row.add(array_temp).draw(true);
+                            return `
+                <a href="{{ url('master-items') }}?kategori_id=${kategori.id}"
+                   class="badge bg-info text-dark text-decoration-none me-1">
+                    ${namaKategori}
+                </a>
+            `;
+                        }).join(' ');
+                    }
+
+                    dataTableObj.row.add([
+                        item.kode,
+                        item.nama,
+                        item.jenis,
+                        item.harga_beli,
+                        hargaJual,
+                        item.supplier ?? '-',
+                        kategoriHtml,
+                        tombolView
+                    ]);
                 });
+
+                dataTableObj.draw();
                 $('#loading-filter').hide();
             },
             error: function(xhr, textStatus, errorThrown) {
