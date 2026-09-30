@@ -71,16 +71,34 @@
                                 .html();
 
                             return `
-                <a href="{{ url('master-items') }}?kategori_id=${kategori.id}"
-                   class="badge bg-info text-dark text-decoration-none me-1">
-                    ${namaKategori}
-                </a>
-            `;
+                        <a href="{{ url('master-items') }}?kategori_id=${kategori.id}"
+                        class="badge bg-info text-dark text-decoration-none me-1">
+                            ${namaKategori}
+                        </a>
+                    `;
                         }).join(' ');
+                    }
+
+                    var fotoHtml = '-';
+
+                    if (item.foto) {
+                        var fotoUrl = '{{ asset('') }}' + item.foto;
+
+                        fotoHtml = `
+                            <img
+                                src="${fotoUrl}"
+                                alt="Foto ${$('<div>').text(item.nama).html()}"
+                                width="50"
+                                height="50"
+                                style="object-fit: cover; border-radius: 6px;"
+                                onerror="this.style.display='none';"
+                            >
+                        `;
                     }
 
                     dataTableObj.row.add([
                         item.kode,
+                        fotoHtml,
                         item.nama,
                         item.jenis,
                         item.harga_beli,

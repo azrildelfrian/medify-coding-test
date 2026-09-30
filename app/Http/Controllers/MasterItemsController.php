@@ -49,7 +49,8 @@ class MasterItemsController extends Controller
                 'jenis',
                 'harga_beli',
                 'laba',
-                'supplier'
+                'supplier',
+                'foto',
             )
             ->orderBy('id')
             ->get();
